@@ -1,0 +1,103 @@
+const mainBody = document.getElementById('main-body');
+let skip = 0;
+const load = 10;  // load 10 posts at a time
+const loadMoreBtn = document.getElementById('load-more');
+let loading = false;
+
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting && !loading) {
+            // When last post comes into view, load more posts
+            loadPosts();
+        }
+    });
+}, {
+    rootMargin: '100px',  // start loading a bit before the element fully appears
+});
+
+
+
+function displayBlogFronend() {
+    fetch('./post.json')
+        .then(res => res.json())
+        .then(data => {
+            data.forEach(post => {
+                mainBody.insertAdjacentHTML('beforeend',
+                    `<div> 
+                <h2>${post.title}</h2>
+                <img src="${post.img}" alt="${post.title}">
+                <p>${post.text}</p>
+                </div>`);
+            });
+        });
+}
+
+// DisplayBlog();
+
+function loadPosts() {
+    if (loading) return;
+    loading = true;
+
+    fetch(`http://127.0.0.1:3000/blog?load=${load}&skip=${skip}`, {
+        method: "GET"
+    })
+        .then(res => res.json())
+        .then(data => {
+            if (data.length === 0) {
+                // No more posts
+
+                observer.disconnect();
+
+                if (loadMoreBtn) {
+                    loadMoreBtn.disabled = true;
+                    loadMoreBtn.textContent = "No more posts";
+                }
+                loading = false;
+                return;
+            }
+
+            data.forEach(post => {
+                const div = document.createElement('div');
+                div.className = "post";
+
+                const title = document.createElement('h2');
+                title.textContent = post.title;
+
+                const img = document.createElement('img');
+                img.src = post.img;
+                img.alt = post.title;
+
+                const text = document.createElement('p');
+                text.textContent = post.text;
+
+                div.appendChild(title);
+                div.appendChild(img);
+                div.appendChild(text);
+
+                mainBody.appendChild(div);
+            });
+
+            skip += load;
+
+            observer.disconnect();
+            // Observe the new last post
+            const posts = document.querySelectorAll('.post');
+            const lastPost = posts[posts.length - 1];
+            if (lastPost) {
+                observer.observe(lastPost);
+            }
+
+            loading = false;
+        })
+        .catch(err => {
+            console.error('Failed to fetch blog data:', err);
+        });
+};
+
+// Load initial posts
+loadPosts();
+
+// Button to load more posts
+loadMoreBtn.addEventListener('click', () => {
+    loadPosts();
+});
