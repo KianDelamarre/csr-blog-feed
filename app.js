@@ -44,6 +44,22 @@ app.get('/blog', (req, res) => {
     })
 })
 
+app.post('/post', (req, res) => {
+    const { title, text, img_url } = req.body;
+
+
+    const sql = 'INSERT INTO posts (title, text, img_url) VALUES (?, ?, ?)';
+    db.run(sql, [title, text, img_url], (err) => {
+        if (err) {
+            res.status(500).json({ error: err.message });
+            return;
+        }
+        res.json({ message: "Post added", title });
+
+
+    })
+})
+
 app.listen(3000, () => {
     console.log('app is running on http://localhost:3000');
 });

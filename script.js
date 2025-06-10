@@ -2,6 +2,7 @@ const mainBody = document.getElementById('main-body');
 let skip = 0;
 const load = 10;  // load 10 posts at a time
 const loadMoreBtn = document.getElementById('load-more');
+const addPostBtn = document.getElementById('post');
 let loading = false;
 
 const observer = new IntersectionObserver((entries) => {
@@ -126,6 +127,32 @@ function loadPosts() {
         });
 };
 
+function addPost() {
+    let title = "new post";
+    let text = "this is some cool text";
+    let img_url = "https://picsum.photos/204";
+
+
+
+
+
+    fetch(`http://localhost:3000/post`, {
+        method: "POST",
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            title,
+            text,
+            img_url
+        })
+    })
+        .then(res => res.json())
+        .then(data => {
+            console.log(data);
+        })
+};
+
 // Load initial posts
 loadPosts();
 
@@ -133,3 +160,7 @@ loadPosts();
 loadMoreBtn.addEventListener('click', () => {
     loadPosts();
 });
+
+addPostBtn.addEventListener('click', () => {
+    addPost();
+})
