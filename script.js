@@ -34,6 +34,38 @@ function displayBlogFronend() {
 
 // DisplayBlog();
 
+
+// function loadPosts() {
+//     fetch(`http://localhost:3000/blog`)
+//         .then(res => res.json())
+//         .then(data => {
+//             console.log(data);
+//             data.forEach(post => {
+//                 const div = document.createElement('div');
+//                 div.className = "post";
+
+//                 const title = document.createElement('h2');
+//                 title.textContent = post.title;
+
+//                 const img = document.createElement('img');
+//                 img.src = post.img_url;
+//                 img.alt = post.title;
+
+//                 const text = document.createElement('p');
+//                 text.textContent = post.text;
+
+//                 div.appendChild(title);
+//                 div.appendChild(img);
+//                 div.appendChild(text);
+
+//                 mainBody.appendChild(div);
+//             });
+//         })
+//         .catch(err => {
+//             console.log('error fetching posts', err);
+//         })
+// }
+
 function loadPosts() {
     if (loading) return;
     loading = true;
@@ -64,7 +96,7 @@ function loadPosts() {
                 title.textContent = post.title;
 
                 const img = document.createElement('img');
-                img.src = post.img;
+                img.src = post.img_url;
                 img.alt = post.title;
 
                 const text = document.createElement('p');
