@@ -3,6 +3,7 @@ let skip = 0;
 const load = 10;  // load 10 posts at a time
 const loadMoreBtn = document.getElementById('load-more');
 const addPostBtn = document.getElementById('post');
+const activateBtn = document.getElementById('activate');
 let loading = false;
 
 const observer = new IntersectionObserver((entries) => {
@@ -92,6 +93,7 @@ function loadPosts() {
             data.forEach(post => {
                 const div = document.createElement('div');
                 div.className = "post";
+                div.id = `post-${post.id}`
 
                 const title = document.createElement('h2');
                 title.textContent = post.title;
@@ -159,8 +161,42 @@ loadPosts();
 // Button to load more posts
 loadMoreBtn.addEventListener('click', () => {
     loadPosts();
-});
+})
 
 addPostBtn.addEventListener('click', () => {
     addPost();
 })
+
+// const postsDivs = document.querySelectorAll('[id^="post-"]');
+// const postOne = document.getElementById("post-1");
+// console.log(postOne.id);
+
+function makePostsClickable() {
+
+    const postsDivs = document.querySelectorAll('[id^="post-"]');
+    const postOne = document.getElementById("post-1");
+    console.log(postOne.id);
+
+
+    postsDivs.forEach(post => {
+        console.log(post.id);
+
+        // const match = po st.id.match(/^post-(\d+)$/);
+        // if (match) {
+        //     const postId = match[1]; // Numeric part
+        //     document.addEventListener(click, () => {
+        //         console.log('clicked post', post.id);
+
+        //     })
+        //     // Safe to use postId
+        // }
+    });
+}
+
+activateBtn.addEventListener('click', () => {
+    makePostsClickable();
+
+})
+
+makePostsClickable();
+
