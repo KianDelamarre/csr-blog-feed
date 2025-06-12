@@ -1,7 +1,21 @@
 const express = require('express');
 const cors = require('cors');
 const sqlite3 = require('sqlite3').verbose();
+const multer = require("multer");
+const path = require("path");
 
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, './uploads')
+    },
+    filename: function (req, file, cb) {
+        const uniqueString = Date.now() + '-' + Math.round(Math.random() * 1E9)
+        const ext = path.extname(file.originalname);
+        cb(null, file.fieldname + '-' + uniqueString + ext)
+    }
+})
+
+const upload = multer({ storage: storage })
 
 const app = express();
 
@@ -46,8 +60,6 @@ app.get('/blog', (req, res) => {
 
 app.post('/post', (req, res) => {
     const { title, text, img_url } = req.body;
-
-
     const sql = 'INSERT INTO posts (title, text, img_url) VALUES (?, ?, ?)';
     db.run(sql, [title, text, img_url], (err) => {
         if (err) {
@@ -59,6 +71,11 @@ app.post('/post', (req, res) => {
 
     })
 })
+
+app.post("/upload", upload.single("file"), (req, res) => {
+    console.log("File received:", req.file);
+    res.json({ message: "Upload successful", file: req.file });
+});
 
 app.delete('/delete', (req, res) => {
     const id = parseInt(req.query.id) || -1;

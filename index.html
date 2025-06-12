@@ -8,11 +8,27 @@
 </head>
 
 <body>
-    <div id="main-body"></div>
     <button id="load-more">load more</button>
     <button id="post">add post</button>
     <button id="activate">activate post select</button>
 
+    <form action="" id="createPostForm">
+        <label for="">enter title</label>
+        <input type="text" id="createPostTitleInput">
+        <label for="">enter text</label>
+        <input type="text" id="createPostTextInput">
+
+        <button id="createPostButton">Create</button>
+    </form>
+
+    <form action="" id="uploadImgForm">
+        <input id="uploadImg" type="file">
+        <button id="uploadImgBtn">upload</button>
+    </form>
+
+
+
+    <div id="main-body"></div>
 </body>
 <script src="./script.js"></script>
 

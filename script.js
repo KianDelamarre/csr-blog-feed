@@ -3,6 +3,8 @@ let skip = 0;
 const load = 10;  // load 10 posts at a time
 const loadMoreBtn = document.getElementById('load-more');
 const addPostBtn = document.getElementById('post');
+const createPostButton = document.getElementById('createPostButton');
+const createPostForm = document.getElementById('createPostForm');
 const activateBtn = document.getElementById('activate');
 let loading = false;
 
@@ -116,7 +118,7 @@ function loadPosts() {
                 mainBody.appendChild(div);
                 deletePostButton.addEventListener('click', () => {
                     // console.log(div.id);
-                    OpenEditPost(post.id);
+                    deletePost(post.id);
 
                 })
             });
@@ -139,8 +141,8 @@ function loadPosts() {
 };
 
 function addPost() {
-    let title = "new post";
-    let text = "this is some cool text";
+    let title = document.getElementById('createPostTitleInput').value;
+    let text = document.getElementById('createPostTextInput').value;
     const randomInt = Math.floor(Math.random() * (210 - 190 + 1)) + 190;
     let img_url = `https://picsum.photos/${randomInt}`;
 
@@ -169,15 +171,47 @@ loadMoreBtn.addEventListener('click', () => {
     loadPosts();
 })
 
+
+
 addPostBtn.addEventListener('click', () => {
     addPost();
 })
+
+
+createPostForm.addEventListener('submit', function (event) {
+    event.preventDefault();
+    let title = document.getElementById('createPostTitleInput').value;
+    let text = document.getElementById('createPostTextInput').value;
+    console.log(title, text);
+    addPost();
+})
+
+document.getElementById('uploadImgForm').addEventListener('submit', async function (event) {
+    event.preventDefault();
+
+    const fileInput = document.getElementById('uploadImg');
+    const file = fileInput.files[0];
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+
+    const response = await fetch("http://localhost:3000/upload", {
+        method: "POST",
+        body: formData,
+    });
+
+    const result = await response.json();
+    console.log("Upload result:", result);
+
+})
+
 
 // const postsDivs = document.querySelectorAll('[id^="post-"]');
 // const postOne = document.getElementById("post-1");
 // console.log(postOne.id);
 
-function OpenEditPost(id) {
+function deletePost(id) {
     console.log('post-' + id);
 
     fetch(`http://localhost:3000/delete?id=${id}`, {
@@ -195,13 +229,6 @@ function OpenEditPost(id) {
         .catch(error => {
             console.error('delete failed:', error);
         })
-
-
 }
-
-activateBtn.addEventListener('click', () => {
-    makePostsClickable();
-
-})
 
 

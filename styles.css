@@ -13,3 +13,9 @@
     border: solid thin black;
     z-index: 1000;
 }
+
+#createPostForm {
+    display: flex;
+    flex-direction: column;
+    width: 20vw;
+}
