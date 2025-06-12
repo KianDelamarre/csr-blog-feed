@@ -7,6 +7,7 @@ const createPostButton = document.getElementById('createPostButton');
 const createPostForm = document.getElementById('createPostForm');
 const activateBtn = document.getElementById('activate');
 let loading = false;
+const url = "http://localhost:3000";
 
 const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
@@ -38,7 +39,7 @@ function loadPosts() {
     if (loading) return;
     loading = true;
 
-    fetch(`http://127.0.0.1:3000/blog?load=${load}&skip=${skip}`, {
+    fetch(`${url}/blog?load=${load}&skip=${skip}`, {
         method: "GET"
     })
         .then(res => res.json())
@@ -111,7 +112,7 @@ async function addRandomPost() {
     let img_url = `https://picsum.photos/${randomInt}`;
 
     try {
-        const response = await fetch("http://localhost:3000/postrandom", {
+        const response = await fetch(`${url}/postrandom`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -145,7 +146,7 @@ async function addPost() {
 
 
     try {
-        const response = await fetch("http://localhost:3000/post", {
+        const response = await fetch(`${url}/post`, {
             method: "POST",
             body: formData
         });
@@ -212,7 +213,7 @@ function deletePost(id) {
         return;
     }
 
-    fetch(`http://localhost:3000/delete?id=${id}`, {
+    fetch(`${url}/delete?id=${id}`, {
         method: "DELETE"
     })
         .then(res => {

@@ -4,6 +4,27 @@ const sqlite3 = require('sqlite3').verbose();
 const multer = require("multer");
 const fs = require('fs');
 const path = require("path");
+const { S3Client, ListObjectsV2Command, PutObjectCommand } = require("@aws-sdk/client-s3");
+
+
+const REGION = "eu-west-2"; // e.g. "us-east-1"
+const BUCKET_NAME = "muaythai-site-uploads";
+
+const s3 = new S3Client({ region: REGION });
+
+async function listBucketObjects() {
+    try {
+        const command = new ListObjectsV2Command({ Bucket: BUCKET_NAME });
+        const response = await s3.send(command);
+        console.log("Objects in bucket:", response.Contents);
+    } catch (err) {
+        console.error("Error listing objects:", err);
+    }
+}
+
+// listBucketObjects();
+
+
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -12,7 +33,8 @@ const storage = multer.diskStorage({
     filename: function (req, file, cb) {
         const uniqueString = Date.now() + '-' + Math.round(Math.random() * 1E9)
         const ext = path.extname(file.originalname);
-        cb(null, file.fieldname + '-' + uniqueString + ext)
+        // cb(null, file.fieldname + '-' + uniqueString + ext)
+        cb(null, file.originalname)
     }
 })
 
@@ -48,13 +70,33 @@ app.get('/blog', (req, res) => {
     })
 })
 
+// app.post('/post', upload.single("file"), (req, res) => {
+//     const { title, text } = req.body;
+//     const filePath = req.file.path;
+//     console.log(title, text);
+
+//     const sql = 'INSERT INTO posts (title, text, img_url) VALUES (?, ?, ?)';
+//     db.run(sql, [title, text, filePath], (err) => {
+//         if (err) {
+//             res.status(500).json({ error: err.message });
+//             return;
+//         }
+//         res.json({ message: "Post added", title });
+//     })
+// })
+
 app.post('/post', upload.single("file"), (req, res) => {
     const { title, text } = req.body;
-    const filePath = req.file.path;
-    console.log(title, text);
+    const file = req.file.path;
+    const fileName = req.file.filename;
+    // const filePath = req.file.path;
+    const img_url = `https://muaythai-site-uploads.s3.eu-west-2.amazonaws.com/${fileName}`;
+    uploadFile(file, fileName);
+    console.log(title, text, img_url);
+    // console.log();
 
     const sql = 'INSERT INTO posts (title, text, img_url) VALUES (?, ?, ?)';
-    db.run(sql, [title, text, filePath], (err) => {
+    db.run(sql, [title, text, img_url], (err) => {
         if (err) {
             res.status(500).json({ error: err.message });
             return;
@@ -104,6 +146,32 @@ app.delete('/delete', (req, res) => {
         res.json({ message: `post ${id} deleted` });
     })
 })
+
+
+
+
+async function uploadFile(filePath, key) {
+    const fileStream = fs.createReadStream(filePath);
+
+    const command = new PutObjectCommand({
+        Bucket: BUCKET_NAME,
+        Key: key,
+        Body: fileStream,
+        ContentType: "image/jpeg", // adjust as needed
+    });
+
+    try {
+        const response = await s3.send(command);
+        console.log("Upload successful:", response);
+        console.log(`URL: https://${BUCKET_NAME}.s3.${s3.config.region}.amazonaws.com/${key}`);
+    } catch (err) {
+        console.error("Upload error:", err);
+    }
+}
+
+// Example usage:
+// uploadFile("./uploads/crow.jpg", "crow.jpg");
+
 
 app.listen(3000, () => {
     console.log('app is running on http://localhost:3000');
