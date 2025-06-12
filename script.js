@@ -105,11 +105,20 @@ function loadPosts() {
                 const text = document.createElement('p');
                 text.textContent = post.text;
 
+                const deletePostButton = document.createElement('button');
+                deletePostButton.textContent = "X";
+
                 div.appendChild(title);
                 div.appendChild(img);
                 div.appendChild(text);
+                div.appendChild(deletePostButton);
 
                 mainBody.appendChild(div);
+                deletePostButton.addEventListener('click', () => {
+                    // console.log(div.id);
+                    OpenEditPost(post.id);
+
+                })
             });
 
             skip += load;
@@ -132,11 +141,8 @@ function loadPosts() {
 function addPost() {
     let title = "new post";
     let text = "this is some cool text";
-    let img_url = "https://picsum.photos/204";
-
-
-
-
+    const randomInt = Math.floor(Math.random() * (210 - 190 + 1)) + 190;
+    let img_url = `https://picsum.photos/${randomInt}`;
 
     fetch(`http://localhost:3000/post`, {
         method: "POST",
@@ -171,26 +177,26 @@ addPostBtn.addEventListener('click', () => {
 // const postOne = document.getElementById("post-1");
 // console.log(postOne.id);
 
-function makePostsClickable() {
+function OpenEditPost(id) {
+    console.log('post-' + id);
 
-    const postsDivs = document.querySelectorAll('[id^="post-"]');
-    const postOne = document.getElementById("post-1");
-    console.log(postOne.id);
+    fetch(`http://localhost:3000/delete?id=${id}`, {
+        method: "DELETE"
+    })
+        .then(res => {
+            if (!res.ok) {
+                throw new Error('network response not ok');
+            }
+            return response.json;
+        })
+        .then(data => {
+            console.log('delete successful:', data);
+        })
+        .catch(error => {
+            console.error('delete failed:', error);
+        })
 
 
-    postsDivs.forEach(post => {
-        console.log(post.id);
-
-        // const match = po st.id.match(/^post-(\d+)$/);
-        // if (match) {
-        //     const postId = match[1]; // Numeric part
-        //     document.addEventListener(click, () => {
-        //         console.log('clicked post', post.id);
-
-        //     })
-        //     // Safe to use postId
-        // }
-    });
 }
 
 activateBtn.addEventListener('click', () => {
@@ -198,5 +204,4 @@ activateBtn.addEventListener('click', () => {
 
 })
 
-makePostsClickable();
 

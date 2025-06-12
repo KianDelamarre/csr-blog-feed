@@ -60,6 +60,18 @@ app.post('/post', (req, res) => {
     })
 })
 
+app.delete('/delete', (req, res) => {
+    const id = parseInt(req.query.id) || -1;
+    const query = 'DELETE FROM posts where id=?';
+    db.run(query, [id], (err) => {
+        if (err) {
+            res.status(500).json({ error: err.message });
+            return;
+        }
+        res.json({ message: `post ${id} deleted` });
+    })
+})
+
 app.listen(3000, () => {
     console.log('app is running on http://localhost:3000');
 });
