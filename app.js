@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const sqlite3 = require('sqlite3').verbose();
 const multer = require("multer");
+const fs = require('fs');
 const path = require("path");
 
 const storage = multer.diskStorage({
@@ -99,6 +100,22 @@ app.post('/post', upload.single("file"), (req, res) => {
 
 app.delete('/delete', (req, res) => {
     const id = parseInt(req.query.id) || -1;
+
+    const sql = 'SELECT img_url FROM posts where id=?';
+    db.get(sql, [id], (err, row) => {
+        if (err) {
+            res.status(500).json({ error: err.message });
+            return;
+        }
+        const img_url = row.img_url;
+        fs.unlink(img_url, function (err) {
+            if (err) throw err;
+            console.log('File deleted!');
+        });
+
+    })
+
+
     const query = 'DELETE FROM posts where id=?';
     db.run(query, [id], (err) => {
         if (err) {
