@@ -48,7 +48,7 @@ app.get('/blog', (req, res) => {
     const skip = parseInt(req.query.skip) || 0
     // const paginatedPosts = postData.slice(skip, skip + load);
 
-    const sql = 'SELECT * FROM posts LIMIT ? OFFSET ?';
+    const sql = 'SELECT * FROM posts ORDER BY id DESC LIMIT ? OFFSET ?';
     db.all(sql, [load, skip], (err, rows) => {
         if (err) {
             res.status(500).json({ error: err.message });
@@ -58,10 +58,35 @@ app.get('/blog', (req, res) => {
     })
 })
 
-app.post('/post', (req, res) => {
-    const { title, text, img_url } = req.body;
+// app.post('/post', (req, res) => {
+//     const { title, text, img_url } = req.body;
+//     const sql = 'INSERT INTO posts (title, text, img_url) VALUES (?, ?, ?)';
+//     db.run(sql, [title, text, img_url], (err) => {
+//         if (err) {
+//             res.status(500).json({ error: err.message });
+//             return;
+//         }
+//         res.json({ message: "Post added", title });
+
+
+//     })
+// })
+
+// app.post("/upload", upload.single("file"), (req, res) => {
+//     console.log("File received:", req.file);
+//     console.log(req.file.path);
+//     res.json({ message: "Upload successful", file: req.file });
+// });
+
+app.post('/post', upload.single("file"), (req, res) => {
+    // const title = req.file.title;
+    // const text = req.file.text;
+    const { title, text } = req.body;
+    const filePath = req.file.path;
+    console.log(title, text);
+
     const sql = 'INSERT INTO posts (title, text, img_url) VALUES (?, ?, ?)';
-    db.run(sql, [title, text, img_url], (err) => {
+    db.run(sql, [title, text, filePath], (err) => {
         if (err) {
             res.status(500).json({ error: err.message });
             return;
@@ -71,11 +96,6 @@ app.post('/post', (req, res) => {
 
     })
 })
-
-app.post("/upload", upload.single("file"), (req, res) => {
-    console.log("File received:", req.file);
-    res.json({ message: "Upload successful", file: req.file });
-});
 
 app.delete('/delete', (req, res) => {
     const id = parseInt(req.query.id) || -1;

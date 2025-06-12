@@ -140,27 +140,43 @@ function loadPosts() {
         });
 };
 
-function addPost() {
-    let title = document.getElementById('createPostTitleInput').value;
-    let text = document.getElementById('createPostTextInput').value;
-    const randomInt = Math.floor(Math.random() * (210 - 190 + 1)) + 190;
-    let img_url = `https://picsum.photos/${randomInt}`;
+async function addPost() {
+    const title = document.getElementById('createPostTitleInput').value;
+    const text = document.getElementById('createPostTextInput').value;
+    // const randomInt = Math.floor(Math.random() * (210 - 190 + 1)) + 190;
+    // let img_url = `https://picsum.photos/${randomInt}`;
 
-    fetch(`http://localhost:3000/post`, {
-        method: "POST",
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            title,
-            text,
-            img_url
-        })
-    })
-        .then(res => res.json())
-        .then(data => {
-            console.log(data);
-        })
+
+    const fileInput = document.getElementById('uploadImg');
+    const file = fileInput.files[0];
+
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("title", title);
+    formData.append("text", text);
+
+
+    try {
+        const response = await fetch("http://localhost:3000/post", {
+            method: "POST",
+            body: formData
+        });
+
+        const data = await response.json();
+        console.log(data);
+    } catch (error) {
+        console.error("Upload failed:", error);
+    }
+
+
+    // fetch(`http://localhost:3000/post`, {
+    //     method: "POST",
+    //     body: formData
+    // })
+    //     .then(res => res.json())
+    //     .then(data => {
+    //         console.log(data);
+    //     })
 };
 
 // Load initial posts
@@ -186,25 +202,25 @@ createPostForm.addEventListener('submit', function (event) {
     addPost();
 })
 
-document.getElementById('uploadImgForm').addEventListener('submit', async function (event) {
-    event.preventDefault();
+// document.getElementById('uploadImgForm').addEventListener('submit', async function (event) {
+//     event.preventDefault();
 
-    const fileInput = document.getElementById('uploadImg');
-    const file = fileInput.files[0];
+//     const fileInput = document.getElementById('uploadImg');
+//     const file = fileInput.files[0];
 
-    const formData = new FormData();
-    formData.append("file", file);
+//     const formData = new FormData();
+//     formData.append("file", file);
 
 
-    const response = await fetch("http://localhost:3000/upload", {
-        method: "POST",
-        body: formData,
-    });
+//     const response = await fetch("http://localhost:3000/upload", {
+//         method: "POST",
+//         body: formData,
+//     });
 
-    const result = await response.json();
-    console.log("Upload result:", result);
+//     const result = await response.json();
+//     console.log("Upload result:", result);
 
-})
+// })
 
 
 // const postsDivs = document.querySelectorAll('[id^="post-"]');
@@ -213,6 +229,10 @@ document.getElementById('uploadImgForm').addEventListener('submit', async functi
 
 function deletePost(id) {
     console.log('post-' + id);
+    const confirmed = confirm("Are you sure you want to do this?");
+    if (!confirmed) {
+        return;
+    }
 
     fetch(`http://localhost:3000/delete?id=${id}`, {
         method: "DELETE"
