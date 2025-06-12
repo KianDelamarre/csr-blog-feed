@@ -19,55 +19,19 @@ const observer = new IntersectionObserver((entries) => {
     rootMargin: '100px',  // start loading a bit before the element fully appears
 });
 
-
-
-function displayBlogFronend() {
-    fetch('./post.json')
-        .then(res => res.json())
-        .then(data => {
-            data.forEach(post => {
-                mainBody.insertAdjacentHTML('beforeend',
-                    `<div> 
-                <h2>${post.title}</h2>
-                <img src="${post.img}" alt="${post.title}">
-                <p>${post.text}</p>
-                </div>`);
-            });
-        });
-}
-
-// DisplayBlog();
-
-
-// function loadPosts() {
-//     fetch(`http://localhost:3000/blog`)
+// function displayBlogFronend() {
+//     fetch('./post.json')
 //         .then(res => res.json())
 //         .then(data => {
-//             console.log(data);
 //             data.forEach(post => {
-//                 const div = document.createElement('div');
-//                 div.className = "post";
-
-//                 const title = document.createElement('h2');
-//                 title.textContent = post.title;
-
-//                 const img = document.createElement('img');
-//                 img.src = post.img_url;
-//                 img.alt = post.title;
-
-//                 const text = document.createElement('p');
-//                 text.textContent = post.text;
-
-//                 div.appendChild(title);
-//                 div.appendChild(img);
-//                 div.appendChild(text);
-
-//                 mainBody.appendChild(div);
+//                 mainBody.insertAdjacentHTML('beforeend',
+//                     `<div> 
+//                 <h2>${post.title}</h2>
+//                 <img src="${post.img}" alt="${post.title}">
+//                 <p>${post.text}</p>
+//                 </div>`);
 //             });
-//         })
-//         .catch(err => {
-//             console.log('error fetching posts', err);
-//         })
+//         });
 // }
 
 function loadPosts() {
@@ -140,6 +104,30 @@ function loadPosts() {
         });
 };
 
+async function addRandomPost() {
+    const title = "new post";
+    const text = "new post";
+    const randomInt = Math.floor(Math.random() * (210 - 190 + 1)) + 190;
+    let img_url = `https://picsum.photos/${randomInt}`;
+
+    try {
+        const response = await fetch("http://localhost:3000/postrandom", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                title,
+                text,
+                img_url
+            })
+        });
+
+        const data = await response.json();
+        console.log(data);
+    } catch (error) {
+        console.error("Upload failed:", error);
+    }
+};
+
 async function addPost() {
     const title = document.getElementById('createPostTitleInput').value;
     const text = document.getElementById('createPostTextInput').value;
@@ -167,16 +155,6 @@ async function addPost() {
     } catch (error) {
         console.error("Upload failed:", error);
     }
-
-
-    // fetch(`http://localhost:3000/post`, {
-    //     method: "POST",
-    //     body: formData
-    // })
-    //     .then(res => res.json())
-    //     .then(data => {
-    //         console.log(data);
-    //     })
 };
 
 // Load initial posts
@@ -190,7 +168,7 @@ loadMoreBtn.addEventListener('click', () => {
 
 
 addPostBtn.addEventListener('click', () => {
-    addPost();
+    addRandomPost();
 })
 
 

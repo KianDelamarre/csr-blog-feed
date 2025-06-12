@@ -33,17 +33,6 @@ const db = new sqlite3.Database('./database.db', (err) => {
     }
 });
 
-
-
-// app.get('/blog', (req, res) => {
-//     const load = parseInt(req.query.load) || 10;
-//     const skip = parseInt(req.query.skip) || 0
-
-//     const paginatedPosts = postData.slice(skip, skip + load);
-
-//     res.send(paginatedPosts);
-// })
-
 app.get('/blog', (req, res) => {
     const load = parseInt(req.query.load) || 10;
     const skip = parseInt(req.query.skip) || 0
@@ -59,29 +48,7 @@ app.get('/blog', (req, res) => {
     })
 })
 
-// app.post('/post', (req, res) => {
-//     const { title, text, img_url } = req.body;
-//     const sql = 'INSERT INTO posts (title, text, img_url) VALUES (?, ?, ?)';
-//     db.run(sql, [title, text, img_url], (err) => {
-//         if (err) {
-//             res.status(500).json({ error: err.message });
-//             return;
-//         }
-//         res.json({ message: "Post added", title });
-
-
-//     })
-// })
-
-// app.post("/upload", upload.single("file"), (req, res) => {
-//     console.log("File received:", req.file);
-//     console.log(req.file.path);
-//     res.json({ message: "Upload successful", file: req.file });
-// });
-
 app.post('/post', upload.single("file"), (req, res) => {
-    // const title = req.file.title;
-    // const text = req.file.text;
     const { title, text } = req.body;
     const filePath = req.file.path;
     console.log(title, text);
@@ -93,14 +60,27 @@ app.post('/post', upload.single("file"), (req, res) => {
             return;
         }
         res.json({ message: "Post added", title });
+    })
+})
 
-
+app.post('/postrandom', (req, res) => {
+    const { title, text, img_url } = req.body;
+    console.log(title, text);
+    const sql = 'INSERT INTO posts (title, text, img_url) VALUES (?, ?, ?)';
+    db.run(sql, [title, text, img_url], (err) => {
+        if (err) {
+            res.status(500).json({ error: err.message });
+            return;
+        }
+        res.json({ message: "Post added", title });
     })
 })
 
 app.delete('/delete', (req, res) => {
     const id = parseInt(req.query.id) || -1;
 
+    //first retrieve and delete the actual image
+    //need to add validation to check wether the image at the specified url exists
     const sql = 'SELECT img_url FROM posts where id=?';
     db.get(sql, [id], (err, row) => {
         if (err) {
@@ -112,10 +92,9 @@ app.delete('/delete', (req, res) => {
             if (err) throw err;
             console.log('File deleted!');
         });
-
     })
 
-
+    //use id to delete the whole row with that id
     const query = 'DELETE FROM posts where id=?';
     db.run(query, [id], (err) => {
         if (err) {
